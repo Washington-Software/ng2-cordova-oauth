@@ -2,9 +2,9 @@
 [![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://paypal.me/nraboy)
 [![Bitcoin](https://img.shields.io/badge/bitcoin-donate-red.svg)](bitcoin://1M8SKTepmgA2KAUSZc7LpXN1owaky1DjNM)
 
-# Angular 2 Cordova Oauth
+# Angular 2 Cordova Oauth (forked)
 
-ng2-cordova-oauth is an Oauth library which easily integrates in Angular2/Ionic2 or any other WEB or Cordova applications. The purpose of this library is to quickly and easily obtain an access token from various web services to use their APIs.
+ng2-cordova-oauth is an Oauth library which easily integrates in Angular2/Ionic2 or any other WEB or Cordova applications. The purpose of this library is to quickly and easily obtain an access token from various web services to use their APIs. This version includes some extra providers.
 
 ## Donations
 
