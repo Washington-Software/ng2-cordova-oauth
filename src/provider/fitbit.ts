@@ -1,6 +1,8 @@
 import { OAuthProvider, IOAuthOptions } from "../provider";
 
 export class Fitbit extends OAuthProvider {
+  
+  protected APP_SCOPE_DELIMITER = ' ';
 
   constructor(options?: IOAuthOptions) {
     super(options);

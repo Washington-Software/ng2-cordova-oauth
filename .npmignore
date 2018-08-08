@@ -1,2 +1,7 @@
 src
 .travis.yml
+.git
+.gitignore
+test
+README.md
+LICENSE
