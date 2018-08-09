@@ -21,7 +21,7 @@ var Oauth = (function () {
         if (windowOptions === void 0) { windowOptions = {}; }
         var url = provider.dialogUrl();
         return this.openDialog(url, utility_1.utils.defaults(windowOptions, this.defaultWindowOptions), {
-            resolveOnUri: provider.options.redirectUri,
+            resolveOnUri: provider.options.resolveOnUri || provider.options.redirectUri,
             providerName: provider.name
         }).then(function (event) {
             return provider.parseResponseInUrl(event.url);

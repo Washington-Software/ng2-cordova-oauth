@@ -9,5 +9,7 @@ __export(require("./provider/imgur"));
 __export(require("./provider/instagram"));
 __export(require("./provider/meetup"));
 __export(require("./provider/linkedin"));
+__export(require("./provider/spotify"));
 __export(require("./provider/strava"));
+__export(require("./provider/untappd"));
 __export(require("./provider/vk"));

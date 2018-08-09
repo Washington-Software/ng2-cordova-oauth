@@ -3,6 +3,7 @@ export interface IOAuthOptions {
     clientId?: string;
     appScope?: string[];
     redirectUri?: string;
+    resolveOnUri?: string;
     responseType?: string;
     state?: string;
     excludeRedirectUri?: boolean;

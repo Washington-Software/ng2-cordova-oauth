@@ -23,7 +23,7 @@ export class OauthBrowser extends Oauth {
             popup.focus();
           }
 
-          setTimeout(function watchPopup() {
+          setInterval(function watchPopup() {
             try {
               if (popup.closed) {
                 return reject(new Error(`The "${options.providerName}" sign in flow was canceled`));

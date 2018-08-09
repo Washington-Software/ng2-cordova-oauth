@@ -27,7 +27,7 @@ var OauthBrowser = (function (_super) {
             if (typeof popup.focus === 'function') {
                 popup.focus();
             }
-            setTimeout(function watchPopup() {
+            setInterval(function watchPopup() {
                 try {
                     if (popup.closed) {
                         return reject(new Error("The \"" + options.providerName + "\" sign in flow was canceled"));

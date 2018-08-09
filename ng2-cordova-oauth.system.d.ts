@@ -10,6 +10,7 @@ declare module "provider" {
         clientId?: string;
         appScope?: string[];
         redirectUri?: string;
+        resolveOnUri?: string;
         responseType?: string;
         state?: string;
         excludeRedirectUri?: boolean;
@@ -109,11 +110,31 @@ declare module "provider/linkedin" {
         protected defaults: Object;
     }
 }
+declare module "provider/spotify" {
+    import { OAuthProvider } from "provider";
+    export class Spotify extends OAuthProvider {
+        protected authUrl: string;
+        protected APP_SCOPE_DELIMITER: string;
+        protected defaults: Object;
+    }
+}
 declare module "provider/strava" {
     import { OAuthProvider } from "provider";
     export class Strava extends OAuthProvider {
         protected authUrl: string;
         protected defaults: Object;
+    }
+}
+declare module "provider/untappd" {
+    import { OAuthProvider, IOAuthOptions } from "provider";
+    export interface IUntappedOptions extends IOAuthOptions {
+    }
+    export class Untappd extends OAuthProvider {
+        options: IUntappedOptions;
+        protected authUrl: string;
+        protected defaults: Object;
+        constructor(options?: IUntappedOptions);
+        protected optionsToDialogUrl(options: any): string;
     }
 }
 declare module "provider/vk" {
@@ -139,16 +160,10 @@ declare module "core" {
     export * from "provider/instagram";
     export * from "provider/meetup";
     export * from "provider/linkedin";
+    export * from "provider/spotify";
     export * from "provider/strava";
+    export * from "provider/untappd";
     export * from "provider/vk";
-}
-declare module "provider/spotify" {
-    import { OAuthProvider } from "provider";
-    export class Spotify extends OAuthProvider {
-        protected authUrl: string;
-        protected APP_SCOPE_DELIMITER: string;
-        protected defaults: Object;
-    }
 }
 declare module "provider/fitbit" {
     import { OAuthProvider, IOAuthOptions } from "provider";

@@ -32,10 +32,7 @@ var OAuthProvider = (function () {
     };
     OAuthProvider.prototype.optionsToDialogUrl = function (options) {
         utility_1.utils.defaults(options, this.defaults);
-        var url = this.authUrl + "?client_id=" + options.clientId;
-        if (!options.excludeRedirectUri) {
-            url += "&redirect_uri=" + options.redirectUri;
-        }
+        var url = this.authUrl + "?client_id=" + options.clientId + "&redirect_uri=" + encodeURIComponent(options.redirectUri);
         if (options.appScope) {
             url += "&scope=" + this.serializeAppScope(options.appScope);
         }

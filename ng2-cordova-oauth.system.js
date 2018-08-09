@@ -14,7 +14,7 @@ System.register("utility", [], function(exports_1, context_1) {
                 parseQueryString: function (url) {
                     var values = url.split(/[?#]{1,2}/)[1].split('&');
                     return values.reduce(function (map, value) {
-                        var _a = value.split('='), paramName = _a[0], paramValue = _a[1];
+                        var _a = value.split(/=(.+)/), paramName = _a[0], paramValue = _a[1];
                         map[decodeURIComponent(paramName)] = decodeURIComponent(paramValue);
                         return map;
                     }, {});
@@ -80,10 +80,7 @@ System.register("provider", ["utility"], function(exports_2, context_2) {
                 };
                 OAuthProvider.prototype.optionsToDialogUrl = function (options) {
                     utility_1.utils.defaults(options, this.defaults);
-                    var url = this.authUrl + "?client_id=" + options.clientId;
-                    if (!options.excludeRedirectUri) {
-                        url += "&redirect_uri=" + options.redirectUri;
-                    }
+                    var url = this.authUrl + "?client_id=" + options.clientId + "&redirect_uri=" + encodeURIComponent(options.redirectUri);
                     if (options.appScope) {
                         url += "&scope=" + this.serializeAppScope(options.appScope);
                     }
@@ -139,7 +136,7 @@ System.register("oauth", ["utility"], function(exports_3, context_3) {
                     if (windowOptions === void 0) { windowOptions = {}; }
                     var url = provider.dialogUrl();
                     return this.openDialog(url, utility_2.utils.defaults(windowOptions, this.defaultWindowOptions), {
-                        resolveOnUri: provider.options.redirectUri,
+                        resolveOnUri: provider.options.resolveOnUri || provider.options.redirectUri,
                         providerName: provider.name
                     }).then(function (event) {
                         return provider.parseResponseInUrl(event.url);
@@ -344,15 +341,45 @@ System.register("provider/linkedin", ["provider"], function(exports_9, context_9
         }
     }
 });
-System.register("provider/strava", ["provider"], function(exports_10, context_10) {
+// Spotify web api authorization guide and scopes
+// https://developer.spotify.com/web-api/authorization-guide
+// https://developer.spotify.com/web-api/using-scopes/
+System.register("provider/spotify", ["provider"], function(exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
     var provider_7;
-    var Strava;
+    var Spotify;
     return {
         setters:[
             function (provider_7_1) {
                 provider_7 = provider_7_1;
+            }],
+        execute: function() {
+            Spotify = (function (_super) {
+                __extends(Spotify, _super);
+                function Spotify() {
+                    _super.apply(this, arguments);
+                    this.authUrl = 'https://accounts.spotify.com/authorize';
+                    this.APP_SCOPE_DELIMITER = ' ';
+                    this.defaults = {
+                        responseType: 'token'
+                    };
+                }
+                return Spotify;
+            }(provider_7.OAuthProvider));
+            exports_10("Spotify", Spotify);
+        }
+    }
+});
+System.register("provider/strava", ["provider"], function(exports_11, context_11) {
+    "use strict";
+    var __moduleName = context_11 && context_11.id;
+    var provider_8;
+    var Strava;
+    return {
+        setters:[
+            function (provider_8_1) {
+                provider_8 = provider_8_1;
             }],
         execute: function() {
             Strava = (function (_super) {
@@ -365,23 +392,68 @@ System.register("provider/strava", ["provider"], function(exports_10, context_10
                     };
                 }
                 return Strava;
-            }(provider_7.OAuthProvider));
-            exports_10("Strava", Strava);
+            }(provider_8.OAuthProvider));
+            exports_11("Strava", Strava);
         }
     }
 });
-System.register("provider/vk", ["provider", "utility"], function(exports_11, context_11) {
+System.register("provider/untappd", ["provider", "utility"], function(exports_12, context_12) {
     "use strict";
-    var __moduleName = context_11 && context_11.id;
-    var provider_8, utility_3;
-    var VK;
+    var __moduleName = context_12 && context_12.id;
+    var provider_9, utility_3;
+    var Untappd;
     return {
         setters:[
-            function (provider_8_1) {
-                provider_8 = provider_8_1;
+            function (provider_9_1) {
+                provider_9 = provider_9_1;
             },
             function (utility_3_1) {
                 utility_3 = utility_3_1;
+            }],
+        execute: function() {
+            Untappd = (function (_super) {
+                __extends(Untappd, _super);
+                function Untappd(options) {
+                    if (options === void 0) { options = {}; }
+                    _super.call(this, options);
+                    this.authUrl = 'https://untappd.com/oauth/authenticate/';
+                    this.defaults = {
+                        responseType: 'token'
+                    };
+                }
+                Untappd.prototype.optionsToDialogUrl = function (options) {
+                    utility_3.utils.defaults(options, this.defaults);
+                    //Had to override this method to change the OAuth spec redirect_uri to redirect_url
+                    var url = this.authUrl + "?client_id=" + options.clientId + "&redirect_url=" + options.redirectUri;
+                    if (options.appScope) {
+                        url += "&scope=" + this.serializeAppScope(options.appScope);
+                    }
+                    if (options.state) {
+                        url += "&state=" + options.state;
+                    }
+                    if (options.responseType) {
+                        url += "&response_type=" + options.responseType;
+                    }
+                    return url;
+                };
+                return Untappd;
+            }(provider_9.OAuthProvider));
+            exports_12("Untappd", Untappd);
+        }
+    }
+});
+System.register("provider/vk", ["provider", "utility"], function(exports_13, context_13) {
+    "use strict";
+    var __moduleName = context_13 && context_13.id;
+    var provider_10, utility_4;
+    var VK;
+    return {
+        setters:[
+            function (provider_10_1) {
+                provider_10 = provider_10_1;
+            },
+            function (utility_4_1) {
+                utility_4 = utility_4_1;
             }],
         execute: function() {
             VK = (function (_super) {
@@ -399,7 +471,7 @@ System.register("provider/vk", ["provider", "utility"], function(exports_11, con
                     }
                 }
                 VK.prototype.optionsToDialogUrl = function (options) {
-                    utility_3.utils.defaults(options, this.defaults);
+                    utility_4.utils.defaults(options, this.defaults);
                     var url = _super.prototype.optionsToDialogUrl.call(this, options);
                     if (options.display) {
                         url += "&display=" + options.display;
@@ -413,20 +485,20 @@ System.register("provider/vk", ["provider", "utility"], function(exports_11, con
                     return url;
                 };
                 return VK;
-            }(provider_8.OAuthProvider));
-            exports_11("VK", VK);
+            }(provider_10.OAuthProvider));
+            exports_13("VK", VK);
         }
     }
 });
-System.register("core", ["oauth", "provider/facebook", "provider/google", "provider/imgur", "provider/instagram", "provider/meetup", "provider/linkedin", "provider/strava", "provider/vk"], function(exports_12, context_12) {
+System.register("core", ["oauth", "provider/facebook", "provider/google", "provider/imgur", "provider/instagram", "provider/meetup", "provider/linkedin", "provider/spotify", "provider/strava", "provider/untappd", "provider/vk"], function(exports_14, context_14) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_14 && context_14.id;
     function exportStar_1(m) {
         var exports = {};
         for(var n in m) {
             if (n !== "default") exports[n] = m[n];
         }
-        exports_12(exports);
+        exports_14(exports);
     }
     return {
         setters:[
@@ -451,8 +523,14 @@ System.register("core", ["oauth", "provider/facebook", "provider/google", "provi
             function (linkedin_1_1) {
                 exportStar_1(linkedin_1_1);
             },
+            function (spotify_1_1) {
+                exportStar_1(spotify_1_1);
+            },
             function (strava_1_1) {
                 exportStar_1(strava_1_1);
+            },
+            function (untappd_1_1) {
+                exportStar_1(untappd_1_1);
             },
             function (vk_1_1) {
                 exportStar_1(vk_1_1);
@@ -461,45 +539,15 @@ System.register("core", ["oauth", "provider/facebook", "provider/google", "provi
         }
     }
 });
-// Spotify web api authorization guide and scopes
-// https://developer.spotify.com/web-api/authorization-guide
-// https://developer.spotify.com/web-api/using-scopes/
-System.register("provider/spotify", ["provider"], function(exports_13, context_13) {
+System.register("provider/fitbit", ["provider"], function(exports_15, context_15) {
     "use strict";
-    var __moduleName = context_13 && context_13.id;
-    var provider_9;
-    var Spotify;
-    return {
-        setters:[
-            function (provider_9_1) {
-                provider_9 = provider_9_1;
-            }],
-        execute: function() {
-            Spotify = (function (_super) {
-                __extends(Spotify, _super);
-                function Spotify() {
-                    _super.apply(this, arguments);
-                    this.authUrl = 'https://accounts.spotify.com/authorize';
-                    this.APP_SCOPE_DELIMITER = ' ';
-                    this.defaults = {
-                        responseType: 'token'
-                    };
-                }
-                return Spotify;
-            }(provider_9.OAuthProvider));
-            exports_13("Spotify", Spotify);
-        }
-    }
-});
-System.register("provider/fitbit", ["provider"], function(exports_14, context_14) {
-    "use strict";
-    var __moduleName = context_14 && context_14.id;
-    var provider_10;
+    var __moduleName = context_15 && context_15.id;
+    var provider_11;
     var Fitbit;
     return {
         setters:[
-            function (provider_10_1) {
-                provider_10 = provider_10_1;
+            function (provider_11_1) {
+                provider_11 = provider_11_1;
             }],
         execute: function() {
             Fitbit = (function (_super) {
@@ -513,20 +561,20 @@ System.register("provider/fitbit", ["provider"], function(exports_14, context_14
                     };
                 }
                 return Fitbit;
-            }(provider_10.OAuthProvider));
-            exports_14("Fitbit", Fitbit);
+            }(provider_11.OAuthProvider));
+            exports_15("Fitbit", Fitbit);
         }
     }
 });
-System.register("provider/runkeeper", ["provider"], function(exports_15, context_15) {
+System.register("provider/runkeeper", ["provider"], function(exports_16, context_16) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
-    var provider_11;
+    var __moduleName = context_16 && context_16.id;
+    var provider_12;
     var Runkeeper;
     return {
         setters:[
-            function (provider_11_1) {
-                provider_11 = provider_11_1;
+            function (provider_12_1) {
+                provider_12 = provider_12_1;
             }],
         execute: function() {
             Runkeeper = (function (_super) {
@@ -539,20 +587,20 @@ System.register("provider/runkeeper", ["provider"], function(exports_15, context
                     };
                 }
                 return Runkeeper;
-            }(provider_11.OAuthProvider));
-            exports_15("Runkeeper", Runkeeper);
+            }(provider_12.OAuthProvider));
+            exports_16("Runkeeper", Runkeeper);
         }
     }
 });
-System.register("provider/polar", ["provider"], function(exports_16, context_16) {
+System.register("provider/polar", ["provider"], function(exports_17, context_17) {
     "use strict";
-    var __moduleName = context_16 && context_16.id;
-    var provider_12;
+    var __moduleName = context_17 && context_17.id;
+    var provider_13;
     var Polar;
     return {
         setters:[
-            function (provider_12_1) {
-                provider_12 = provider_12_1;
+            function (provider_13_1) {
+                provider_13 = provider_13_1;
             }],
         execute: function() {
             Polar = (function (_super) {
@@ -566,23 +614,23 @@ System.register("provider/polar", ["provider"], function(exports_16, context_16)
                     };
                 }
                 return Polar;
-            }(provider_12.OAuthProvider));
-            exports_16("Polar", Polar);
+            }(provider_13.OAuthProvider));
+            exports_17("Polar", Polar);
         }
     }
 });
-System.register("platform/browser", ["oauth", "utility"], function(exports_17, context_17) {
+System.register("platform/browser", ["oauth", "utility"], function(exports_18, context_18) {
     "use strict";
-    var __moduleName = context_17 && context_17.id;
-    var oauth_2, utility_4;
+    var __moduleName = context_18 && context_18.id;
+    var oauth_2, utility_5;
     var OauthBrowser;
     return {
         setters:[
             function (oauth_2_1) {
                 oauth_2 = oauth_2_1;
             },
-            function (utility_4_1) {
-                utility_4 = utility_4_1;
+            function (utility_5_1) {
+                utility_5 = utility_5_1;
             }],
         execute: function() {
             OauthBrowser = (function (_super) {
@@ -597,7 +645,7 @@ System.register("platform/browser", ["oauth", "utility"], function(exports_17, c
                 }
                 OauthBrowser.prototype.openDialog = function (url, params, options) {
                     if (options === void 0) { options = {}; }
-                    var windowParams = this.addWindowRect(utility_4.utils.defaults({ title: 'Authentication' }, params));
+                    var windowParams = this.addWindowRect(utility_5.utils.defaults({ title: 'Authentication' }, params));
                     var title = windowParams.title;
                     delete windowParams.title;
                     var popup = window.open(url, title, this.serializeOptions(windowParams));
@@ -606,7 +654,7 @@ System.register("platform/browser", ["oauth", "utility"], function(exports_17, c
                         if (typeof popup.focus === 'function') {
                             popup.focus();
                         }
-                        setTimeout(function watchPopup() {
+                        setInterval(function watchPopup() {
                             try {
                                 if (popup.closed) {
                                     return reject(new Error("The \"" + options.providerName + "\" sign in flow was canceled"));
@@ -637,13 +685,13 @@ System.register("platform/browser", ["oauth", "utility"], function(exports_17, c
                 OauthBrowser.WATCH_POPUP_TIMEOUT = 100;
                 return OauthBrowser;
             }(oauth_2.Oauth));
-            exports_17("OauthBrowser", OauthBrowser);
+            exports_18("OauthBrowser", OauthBrowser);
         }
     }
 });
-System.register("platform/cordova", ["oauth"], function(exports_18, context_18) {
+System.register("platform/cordova", ["oauth"], function(exports_19, context_19) {
     "use strict";
-    var __moduleName = context_18 && context_18.id;
+    var __moduleName = context_19 && context_19.id;
     var oauth_3;
     var OauthCordova;
     function ensureEnvIsValid() {
@@ -699,7 +747,7 @@ System.register("platform/cordova", ["oauth"], function(exports_18, context_18) 
                 };
                 return OauthCordova;
             }(oauth_3.Oauth));
-            exports_18("OauthCordova", OauthCordova);
+            exports_19("OauthCordova", OauthCordova);
         }
     }
 });

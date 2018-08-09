@@ -3,7 +3,7 @@ exports.utils = {
     parseQueryString: function (url) {
         var values = url.split(/[?#]{1,2}/)[1].split('&');
         return values.reduce(function (map, value) {
-            var _a = value.split('='), paramName = _a[0], paramValue = _a[1];
+            var _a = value.split(/=(.+)/), paramName = _a[0], paramValue = _a[1];
             map[decodeURIComponent(paramName)] = decodeURIComponent(paramValue);
             return map;
         }, {});
